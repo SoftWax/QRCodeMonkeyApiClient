@@ -1,5 +1,7 @@
 # QR Code Monkey API Client
 
+[![Build Status](https://travis-ci.org/SoftWax/QRCodeMonkeyApiClient.svg?branch=master)](https://travis-ci.org/SoftWax/QRCodeMonkeyApiClient)
+
 PHP client implementation of [QR Code Monkey API](https://www.qrcode-monkey.com)
 
 ## Installation
