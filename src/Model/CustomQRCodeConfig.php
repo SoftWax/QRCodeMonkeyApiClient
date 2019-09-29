@@ -356,6 +356,7 @@ class CustomQRCodeConfig
                 'brf2' => $this->brf2,
                 'brf3' => $this->brf3,
                 'bodyColor' => $this->bodyColor,
+                'bgColor' => $this->bgColor,
                 'eye1Color' => $this->eye1Color,
                 'eye2Color' => $this->eye2Color,
                 'eye3Color' => $this->eye3Color,
