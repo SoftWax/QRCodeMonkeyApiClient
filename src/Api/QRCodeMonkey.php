@@ -47,18 +47,26 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
     private $streamFactory;
 
     /**
+     * @var string
+     */
+    private $rapidApiKey;
+
+    /**
      * @param HttpClient $httpClient
      * @param RequestFactoryInterface $requestFactory
      * @param StreamFactoryInterface $streamFactory
+     * @param string $rapidApiKey
      */
     public function __construct(
         HttpClient $httpClient,
         RequestFactoryInterface $requestFactory,
-        StreamFactoryInterface $streamFactory
+        StreamFactoryInterface $streamFactory,
+        string $rapidApiKey
     ) {
         $this->httpClient = $httpClient;
         $this->requestFactory = $requestFactory;
         $this->streamFactory = $streamFactory;
+        $this->rapidApiKey = $rapidApiKey;
     }
 
     /**
@@ -80,16 +88,17 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
     /**
      * {@inheritdoc}
      */
-    public function uploadImage($imageFile): UploadImageResponse
+    public function uploadImage(string $imageFilePath): UploadImageResponse
     {
         $builder = new MultipartStreamBuilder($this->streamFactory);
-        $builder->addResource('file', $imageFile);
+        $builder->addResource('file', $imageFilePath, ['filename' => \basename($imageFilePath)]);
         $multipartStream = $builder->build();
         $boundary = $builder->getBoundary();
 
         $request = $this->requestFactory->createRequest('POST', self::UPLOAD_IMAGE_URL);
         $request = $request->withHeader('Content-Type', \sprintf('multipart/form-data; boundary="%s"', $boundary));
         $request = $request->withBody($multipartStream);
+        $request = $this->addRapidApiHeaders($request);
 
         $response = $this->sendRequest($request);
 
@@ -139,6 +148,7 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
         $request = $this->requestFactory->createRequest('POST', $url);
         $request = $request->withHeader('Content-Type', 'application/json');
         $request = $request->withBody($this->streamFactory->createStream(Json::encode($body)));
+        $request = $this->addRapidApiHeaders($request);
 
         return $request;
     }
@@ -153,5 +163,17 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
         if ($response->getStatusCode() !== $expectedStatusCode) {
             throw ResponseException::create($response);
         }
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @return RequestInterface
+     */
+    private function addRapidApiHeaders(RequestInterface $request): RequestInterface
+    {
+        $apiRequest = $request->withHeader('x-rapidapi-key', $this->rapidApiKey);
+        $apiRequest = $apiRequest->withHeader('x-rapidapi-host', self::RAPID_API_HOST);
+
+        return $apiRequest;
     }
 }

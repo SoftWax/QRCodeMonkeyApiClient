@@ -21,7 +21,8 @@ use SoftWax\QRCodeMonkeyApiClient\Model\UploadImageResponse;
 
 interface QRCodeMonkeyInterface
 {
-    public const BASE_URL = 'https://qr-generator.qrcode.studio';
+    public const RAPID_API_HOST = 'qrcode-monkey.p.rapidapi.com';
+    public const BASE_URL = 'https://qrcode-monkey.p.rapidapi.com';
     public const CREATE_CUSTOM_URL = self::BASE_URL . '/qr/custom';
     public const CREATE_TRANSPARENT_URL = self::BASE_URL . '/qr/transparent';
     public const UPLOAD_IMAGE_URL = self::BASE_URL . '/qr/uploadImage';
@@ -41,9 +42,9 @@ interface QRCodeMonkeyInterface
     public function createTransparent(TransparentQRCode $QRCode): StreamInterface;
 
     /**
-     * @param string|resource|StreamInterface $imageFile
+     * @param string $imageFilePath
      * @return UploadImageResponse
      * @throws QRCodeMonkeyApiClientException
      */
-    public function uploadImage($imageFile): UploadImageResponse;
+    public function uploadImage(string $imageFilePath): UploadImageResponse;
 }

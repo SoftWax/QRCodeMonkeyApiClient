@@ -19,14 +19,16 @@ use Http\Discovery\Psr17FactoryDiscovery;
 final class QRCodeMonkeyFactory
 {
     /**
+     * @param string $rapidApiKey
      * @return QRCodeMonkeyInterface
      */
-    public static function create(): QRCodeMonkeyInterface
+    public static function create(string $rapidApiKey): QRCodeMonkeyInterface
     {
         return new QRCodeMonkey(
             HttpClientDiscovery::find(),
             Psr17FactoryDiscovery::findRequestFactory(),
-            Psr17FactoryDiscovery::findStreamFactory()
+            Psr17FactoryDiscovery::findStreamFactory(),
+            $rapidApiKey
         );
     }
 }

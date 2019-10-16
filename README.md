@@ -10,6 +10,9 @@ PHP client implementation of [QR Code Monkey API](https://www.qrcode-monkey.com)
 composer require softwax/qr-code-monkey-api-client php-http/guzzle6-adapter ^1.0
 ```
 
+`softwax/qr-code-monkey-api-client:^1.0` version is using base qr code studio endpoint which is not suitable for live/production usage and has requests limit.
+For live/production please use `softwax/qr-code-monkey-api-client:^2.0` version which requires [rapid api key](https://rapidapi.com).
+
 ## Usage
 
 ```php
