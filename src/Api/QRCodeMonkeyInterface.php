@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace SoftWax\QRCodeMonkeyApiClient\Api;
 
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use SoftWax\QRCodeMonkeyApiClient\Exception\QRCodeMonkeyApiClientException;
 use SoftWax\QRCodeMonkeyApiClient\Model\CustomQRCode;
 use SoftWax\QRCodeMonkeyApiClient\Model\TransparentQRCode;
@@ -47,4 +49,10 @@ interface QRCodeMonkeyInterface
      * @throws QRCodeMonkeyApiClientException
      */
     public function uploadImage(string $imageFilePath): UploadImageResponse;
+
+    /**
+     * @param LoggerInterface|null $logger
+     * @param string $level
+     */
+    public function logTo(?LoggerInterface $logger, string $level = LogLevel::DEBUG);
 }

@@ -20,10 +20,13 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use SoftWax\QRCodeMonkeyApiClient\Exception\JsonException;
 use SoftWax\QRCodeMonkeyApiClient\Exception\QRCodeMonkeyApiClientException;
 use SoftWax\QRCodeMonkeyApiClient\Exception\ResponseException;
 use SoftWax\QRCodeMonkeyApiClient\Helper\Json;
+use SoftWax\QRCodeMonkeyApiClient\Logger\Logger;
 use SoftWax\QRCodeMonkeyApiClient\Model\AbstractQRCode;
 use SoftWax\QRCodeMonkeyApiClient\Model\CustomQRCode;
 use SoftWax\QRCodeMonkeyApiClient\Model\TransparentQRCode;
@@ -52,6 +55,11 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
     private $rapidApiKey;
 
     /**
+     * @var LoggerInterface|null
+     */
+    private $logger = null;
+
+    /**
      * @param HttpClient $httpClient
      * @param RequestFactoryInterface $requestFactory
      * @param StreamFactoryInterface $streamFactory
@@ -67,6 +75,7 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
         $this->requestFactory = $requestFactory;
         $this->streamFactory = $streamFactory;
         $this->rapidApiKey = $rapidApiKey;
+        $this->logger = new Logger();
     }
 
     /**
@@ -117,7 +126,11 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
      */
     private function createQRCode(AbstractQRCode $QRCode, string $url): StreamInterface
     {
-        $response = $this->sendRequest($this->createJsonRequest($url, $QRCode->normalize()));
+        $request = $this->createJsonRequest($url, $QRCode->normalize());
+        $this->logger->logRequest($request);
+
+        $response = $this->sendRequest($request);
+        $this->logger->logResponse($response);
         $this->assertResponseStatus($response, 200);
 
         return $response->getBody();
@@ -132,7 +145,7 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
     {
         try {
             return $this->httpClient->sendRequest($request);
-        } catch (\Exception $e) {
+        } catch (\Exception | \Throwable $e) {
             throw new QRCodeMonkeyApiClientException($e->getMessage(), $e->getCode(), $e);
         }
     }
@@ -175,5 +188,15 @@ final class QRCodeMonkey implements QRCodeMonkeyInterface
         $apiRequest = $apiRequest->withHeader('x-rapidapi-host', self::RAPID_API_HOST);
 
         return $apiRequest;
+    }
+
+    /**
+     * @param LoggerInterface|null $logger
+     * @param string $level
+     */
+    public function logTo(?LoggerInterface $logger = null, string $level = LogLevel::DEBUG): void
+    {
+        $this->logger->setLogger($logger);
+        $this->logger->setLevel($level);
     }
 }
